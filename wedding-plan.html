@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>婚礼流程 · 时间轴</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: linear-gradient(145deg, #f9efe2 0%, #fdf2e6 100%);
+      font-family: 'Segoe UI', 'Noto Serif SC', 'Times New Roman', 楷体, KaiTi, serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+      margin: 0;
+      position: relative;
+    }
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background: rgba(255, 250, 245, 0.85);
+      backdrop-filter: blur(18px);
+      background: #fffbf5;
+      border-radius: 3.5rem 3.5rem 3rem 3rem;
+      box-shadow: 0 30px 50px rgba(160, 100, 60, 0.15), 0 10px 25px rgba(0,0,0,0.08);
+      padding: 2rem 1.5rem 2.2rem;
+      border: 1px solid rgba(230, 190, 140, 0.3);
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    /* 装饰元素 */
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    .header h1 {
+      font-size: 2.3rem;
+      font-weight: 400;
+      color: #b45f4a;
+      letter-spacing: 4px;
+      font-family: "Noto Serif SC", "楷体", KaiTi, serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+    .header h1 span {
+      font-size: 2rem;
+      color: #c9976b;
+    }
+    .subhead {
+      color: #9b7b6c;
+      font-size: 0.9rem;
+      border-top: 1px dashed #dbb68c;
+      border-bottom: 1px dashed #dbb68c;
+      display: inline-block;
+      padding: 0.4rem 1.8rem;
+      letter-spacing: 2px;
+      margin-top: 0.3rem;
+    }
+    /* 时间轴主体 */
+    .timeline {
+      position: relative;
+      padding-left: 2.2rem;
+      margin: 1.5rem 0 1.8rem;
+    }
+    /* 中间的垂直线 */
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 1.2rem;
+      top: 0.5rem;
+      bottom: 0.5rem;
+      width: 3px;
+      background: linear-gradient(to bottom, #e6c8a8, #d9a577, #e6c8a8);
+      border-radius: 3px;
+    }
+    /* 每个时间点条目 */
+    .event {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 1.8rem;
+      position: relative;
+      word-break: break-word;
+    }
+    .event:last-child {
+      margin-bottom: 0.2rem;
+    }
+    /* 圆点标记 */
+    .dot {
+      position: absolute;
+      left: -1.6rem;
+      top: 0.35rem;
+      width: 1.3rem;
+      height: 1.3rem;
+      background: #fff6ed;
+      border: 3px solid #c4884c;
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(245, 215, 180, 0.5);
+      background: white;
+      z-index: 2;
+      transition: 0.2s;
+    }
+    .event:hover .dot {
+      background: #d9a066;
+      border-color: #9b5e3a;
+    }
+    /* 内容卡片 */
+    .content {
+      background: #ffffff;
+      border-radius: 1.8rem 1.8rem 1.8rem 0.5rem;
+      padding: 0.9rem 1.3rem;
+      box-shadow: 0 8px 18px rgba(170, 120, 70, 0.08);
+      border: 1px solid #f3ddcc;
+      flex: 1;
+      transition: all 0.25s ease;
+      margin-left: 0.5rem;
+      backdrop-filter: blur(2px);
+    }
+    .event:hover .content {
+      box-shadow: 0 12px 22px rgba(160, 100, 40, 0.15);
+      border-color: #d6a77a;
+      transform: translateY(-1px);
+    }
+    .time {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #804d33;
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.5px;
+    }
+    .time-icon {
+      font-size: 1rem;
+      color: #b5794a;
+    }
+    .desc {
+      font-size: 1rem;
+      color: #4d3a2c;
+      line-height: 1.5;
+      font-weight: 450;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .desc i {
+      margin-right: 0.3rem;
+      opacity: 0.7;
+      font-style: normal;
+    }
+    /* 可编辑按钮 (仅编辑模式可见) */
+    .edit-controls {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .btn {
+      background: transparent;
+      border: 1px solid #ccaa80;
+      color: #8b6240;
+      padding: 0.4rem 1.2rem;
+      border-radius: 2rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: #fffaf3;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      font-weight: 500;
+      backdrop-filter: blur(4px);
+    }
+    .btn:hover {
+      background: #f3e0cd;
+      border-color: #b2824a;
+      color: #5c3a24;
+    }
+    .btn.primary {
+      background: #d9a87c;
+      border-color: #b07242;
+      color: white;
+      font-weight: 600;
+    }
+    .btn.primary:hover {
+      background: #c28b5c;
+    }
+    .hidden {
+      display: none !important;
+    }
+    /* 编辑文本框样式 */
+    .edit-input {
+      border: 1px solid #dbb58b;
+      border-radius: 1rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.95rem;
+      width: 100%;
+      background: #fffef9;
+      font-family: inherit;
+      color: #4a3727;
+      margin: 0.2rem 0 0.4rem;
+      outline: none;
+      transition: 0.2s;
+    }
+    .edit-input:focus {
+      border-color: #b37b4a;
+      box-shadow: 0 0 0 2px rgba(200, 140, 80, 0.25);
+    }
+    .time-edit-row {
+      display: flex;
+      gap: 0.3rem;
+      align-items: center;
+      margin-bottom: 0.3rem;
+    }
+    .time-edit-row input {
+      width: 80px;
+    }
+    .save-item-btn {
+      background: none;
+      border: none;
+      color: #9b6b4a;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0.2rem 0.5rem;
+    }
+    .note {
+      font-size: 0.75rem;
+      color: #b29578;
+      text-align: center;
+      margin-top: 1.2rem;
+      font-style: italic;
+    }
+    .readonly-badge {
+      background: #f5e1cf;
+      border-radius: 20px;
+      padding: 0.2rem 0.9rem;
+      font-size: 0.7rem;
+      color: #7b5c45;
+      margin-left: 0.5rem;
+      letter-spacing: 0.5px;
+    }
+    @media (max-width: 400px) {
+      .container {
+        padding: 1.5rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="appContainer">
+  <div class="header">
+    <h1>
+      <span>🎐</span> 良辰吉时 <span>🎐</span>
+    </h1>
+    <div class="subhead">· 喜结连理 ·</div>
+  </div>
+
+  <!-- 时间轴列表将通过js动态渲染，便于编辑控制 -->
+  <div class="timeline" id="timelineContainer"></div>
+
+  <!-- 编辑模式切换按钮区域 (只有编辑者可见) -->
+  <div class="edit-controls" id="editControls">
+    <button class="btn" id="toggleEditBtn">
+      <span>✎</span> 编辑流程
+    </button>
+    <button class="btn primary hidden" id="addEventBtn">
+      <span>+</span> 添加事项
+    </button>
+    <button class="btn hidden" id="saveAllBtn" style="background:#c78b5c; color:white; border-color:#9f6a3f;">
+      <span>✓</span> 完成编辑
+    </button>
+  </div>
+  <div class="note" id="statusNote">
+    🕊️ 甜蜜时刻 · 仅浏览模式
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ---------- 初始数据 (结婚流程) ----------
+    const INITIAL_EVENTS = [
+      { id: 'e1', time: '8:00', description: '车队集合、接亲人集合' },
+      { id: 'e2', time: '8:30', description: '结亲队伍出发' },
+      { id: 'e3', time: '9:30', description: '到达酒店，开始结亲互动游戏' },
+      { id: 'e4', time: '10:20', description: '结亲团队返回' },
+      { id: 'e5', time: '11:30', description: '进入新郎家里，互动游戏' },
+      { id: 'e6', time: '12:12', description: '开始午饭' }
+    ];
+
+    // 存储键名
+    const STORAGE_KEY = 'wedding_timeline_events';
+
+    // 状态变量
+    let events = [];                 // 当前事件数组
+    let isEditMode = false;        // 是否处于编辑模式
+    let nextId = 1;                // 用于生成新id
+
+    // DOM元素
+    const timelineContainer = document.getElementById('timelineContainer');
+    const toggleEditBtn = document.getElementById('toggleEditBtn');
+    const addEventBtn = document.getElementById('addEventBtn');
+    const saveAllBtn = document.getElementById('saveAllBtn');
+    const statusNote = document.getElementById('statusNote');
+
+    // ---------- 工具函数 ----------
+    function loadEventsFromStorage() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            // 确保每个事件有id
+            return parsed.map((ev, index) => {
+              if (!ev.id) {
+                return { ...ev, id: 'e' + (Date.now() + index) };
+              }
+              return ev;
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('读取存储失败，使用默认数据');
+      }
+      // 默认返回初始数据深拷贝
+      return INITIAL_EVENTS.map(ev => ({ ...ev }));
+    }
+
+    function saveEventsToStorage(eventsArray) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(eventsArray));
+    }
+
+    // 刷新最大ID
+    function updateNextId() {
+      let maxNum = 0;
+      events.forEach(ev => {
+        const match = ev.id?.match(/^e(\d+)/);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (num > maxNum) maxNum = num;
+        }
+      });
+      nextId = maxNum + 1;
+    }
+
+    // 生成新id
+    function generateId() {
+      return 'e' + (nextId++);
+    }
+
+    // 重新渲染时间轴
+    function renderTimeline() {
+      if (!timelineContainer) return;
+      
+      if (!events.length) {
+        timelineContainer.innerHTML = `<div style="text-align:center; color:#b29578; padding:1.5rem;">暂无流程，点击“编辑流程”添加</div>`;
+        return;
+      }
+
+      // 按时间排序 (简单字符串比较，适合 hh:mm 格式)
+      const sortedEvents = [...events].sort((a, b) => {
+        const timeA = a.time || '0:00';
+        const timeB = b.time || '0:00';
+        return timeA.localeCompare(timeB, undefined, { numeric: true });
+      });
+
+      let html = '';
+      sortedEvents.forEach((ev) => {
+        const timeText = ev.time || '??:??';
+        const descText = ev.description || '未填写事项';
+        
+        if (isEditMode) {
+          // 编辑模式：显示可编辑输入框
+          html += `
+            <div class="event" data-id="${ev.id}">
+              <div class="dot"></div>
+              <div class="content">
+                <div class="time-edit-row">
+                  <input class="edit-input time-input" type="text" value="${escapeHtml(timeText)}" placeholder="时间" style="width:80px;">
+                  <span style="color:#b5794a; margin:0 0.2rem;">⏱️</span>
+                </div>
+                <input class="edit-input desc-input" type="text" value="${escapeHtml(descText)}" placeholder="事项描述">
+                <div style="display:flex; justify-content:flex-end; margin-top:0.3rem;">
+                  <button class="save-item-btn delete-event-btn" title="删除此事项" style="color:#b55a4a; margin-right:0.5rem;">🗑️</button>
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          // 只读模式：展示精美卡片
+          html += `
+            <div class="event" data-id="${ev.id}">
+              <div class="dot"></div>
+              <div class="content">
+                <div class="time">
+                  <span class="time-icon">🕗</span> ${escapeHtml(timeText)}
+                </div>
+                <div class="desc">
+                  <i>🌸</i> ${escapeHtml(descText)}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      timelineContainer.innerHTML = html;
+
+      // 如果处于编辑模式，绑定输入框事件及删除按钮
+      if (isEditMode) {
+        attachEditEvents();
+      }
+    }
+
+    // 简单的转义防止XSS
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // 为编辑模式下的输入框和删除按钮绑定事件 (事件委托方式更佳，这里直接绑定)
+    function attachEditEvents() {
+      if (!timelineContainer) return;
+      
+      // 删除按钮事件
+      const deleteButtons = timelineContainer.querySelectorAll('.delete-event-btn');
+      deleteButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const eventDiv = this.closest('.event');
+          if (!eventDiv) return;
+          const id = eventDiv.getAttribute('data-id');
+          if (id) {
+            deleteEventById(id);
+          }
+        });
+      });
+    }
+
+    // 根据ID删除事件
+    function deleteEventById(id) {
+      if (!isEditMode) return; // 安全防护
+      events = events.filter(ev => ev.id !== id);
+      saveEventsToStorage(events);
+      renderTimeline();
+      updateNextId();
+    }
+
+    // 从编辑模式的DOM中收集最新数据并更新events数组
+    function collectEditedData() {
+      if (!timelineContainer) return;
+      const eventDivs = timelineContainer.querySelectorAll('.event');
+      const newEvents = [];
+      
+      eventDivs.forEach(div => {
+        const id = div.getAttribute('data-id');
+        const timeInput = div.querySelector('.time-input');
+        const descInput = div.querySelector('.desc-input');
+        
+        if (timeInput && descInput) {
+          const timeValue = timeInput.value.trim() || '0:00';
+          const descValue = descInput.value.trim() || '事项';
+          newEvents.push({
+            id: id || generateId(),
+            time: timeValue,
+            description: descValue
+          });
+        } else {
+          // 后备：如果缺失输入框，保留原数据 (但正常情况不应发生)
+          const existing = events.find(ev => ev.id === id);
+          if (existing) newEvents.push({...existing});
+        }
+      });
+      
+      // 更新全局events并保存
+      events = newEvents;
+      saveEventsToStorage(events);
+      updateNextId();
+    }
+
+    // 添加新事件
+    function addNewEvent() {
+      if (!isEditMode) return;
+      const newId = generateId();
+      events.push({
+        id: newId,
+        time: '12:00',
+        description: '新事项'
+      });
+      saveEventsToStorage(events);
+      renderTimeline();
+      // 可选：聚焦到新添加的项
+    }
+
+    // 切换编辑模式
+    function setEditMode(enable) {
+      if (enable === isEditMode) return;
+      
+      if (enable) {
+        // 进入编辑模式前，确保events是最新的（以防万一）
+        // 直接切换到编辑状态
+        isEditMode = true;
+        toggleEditBtn.classList.add('hidden');
+        addEventBtn.classList.remove('hidden');
+        saveAllBtn.classList.remove('hidden');
+        statusNote.innerHTML = '✍️ 编辑模式 · 修改时间或事项，点击“完成编辑”保存';
+        statusNote.style.color = '#b45f4a';
+        renderTimeline(); // 重新渲染为输入框
+      } else {
+        // 退出编辑模式：先收集当前编辑数据
+        collectEditedData();
+        isEditMode = false;
+        toggleEditBtn.classList.remove('hidden');
+        addEventBtn.classList.add('hidden');
+        saveAllBtn.classList.add('hidden');
+        statusNote.innerHTML = '🕊️ 甜蜜时刻 · 仅浏览模式';
+        statusNote.style.color = '#b29578';
+        renderTimeline(); // 重新渲染为只读卡片
+        saveEventsToStorage(events);
+      }
+    }
+
+    // 初始化页面
+    function init() {
+      events = loadEventsFromStorage();
+      updateNextId();
+      // 确保初始为只读模式
+      isEditMode = false;
+      toggleEditBtn.classList.remove('hidden');
+      addEventBtn.classList.add('hidden');
+      saveAllBtn.classList.add('hidden');
+      statusNote.innerHTML = '🕊️ 甜蜜时刻 · 仅浏览模式';
+      renderTimeline();
+
+      // 绑定按钮事件
+      toggleEditBtn.addEventListener('click', () => {
+        setEditMode(true);
+      });
+
+      saveAllBtn.addEventListener('click', () => {
+        setEditMode(false);
+      });
+
+      addEventBtn.addEventListener('click', () => {
+        if (isEditMode) {
+          addNewEvent();
+        }
+      });
+
+      // 额外安全措施：如果用户试图通过刷新等，保持只读。
+      // 页面关闭或卸载时不需要额外操作。
+    }
+
+    // 页面加载启动
+    window.addEventListener('DOMContentLoaded', init);
+  })();
+</script>
+</body>
+</html>
